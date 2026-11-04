@@ -1,0 +1,770 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Panel Donuts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: encabezado con dos pestañas. Compras = formulario a la izquierda y lista a la derecha.
+   Precio de venta = formulario por grupos a la izquierda y resultado fijo a la derecha. */
+:root{
+  --bg:#fff4f8; --blob:#ffd2e3; --surface:#ffffff; --field:#fff9fb;
+  --ink:#3a1325; --muted:#835670; --line:#f5d2e0;
+  --accent:#d6336c; --accent-2:#ff8fb4; --accent-soft:#ffe3ed; --on-accent:#ffffff;
+  --warn-bg:#fff0d9; --warn-ink:#7a4a00; --bad:#b3261e;
+  --c1:#e0558a; --c2:#f3a2c0; --c3:#9c5bc4; --c4:#f2a06b; --c5:#3f9d97; --c6:#c3a0b1; --profit:#2f9e6e;
+  --shadow:0 14px 34px -22px rgba(214,51,108,.55);
+  --display:'Bricolage Grotesque',system-ui,sans-serif; --body:'Figtree',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1c0e16; --blob:#3b1a2b; --surface:#2a1420; --field:#34192a;
+    --ink:#ffe9f1; --muted:#d7a3b9; --line:#4d2638;
+    --accent:#ff6fa3; --accent-2:#ff8fb4; --accent-soft:#4a1f33; --on-accent:#3a0f23;
+    --warn-bg:#4a3414; --warn-ink:#ffd699; --bad:#ff9b94;
+    --c1:#ff7aa9; --c2:#ffb3cf; --c3:#c08bf0; --c4:#ffb27d; --c5:#6cc8c1; --c6:#b88ba0; --profit:#5fd9a0;
+    --shadow:0 14px 34px -22px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1c0e16; --blob:#3b1a2b; --surface:#2a1420; --field:#34192a;
+  --ink:#ffe9f1; --muted:#d7a3b9; --line:#4d2638;
+  --accent:#ff6fa3; --accent-2:#ff8fb4; --accent-soft:#4a1f33; --on-accent:#3a0f23;
+  --warn-bg:#4a3414; --warn-ink:#ffd699; --bad:#ff9b94;
+  --c1:#ff7aa9; --c2:#ffb3cf; --c3:#c08bf0; --c4:#ffb27d; --c5:#6cc8c1; --c6:#b88ba0; --profit:#5fd9a0;
+  --shadow:0 14px 34px -22px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:radial-gradient(900px 320px at 88% -120px,var(--blob),transparent 70%),var(--bg);
+  color:var(--ink); font:15px/1.5 var(--body);
+  padding-block:22px 40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body.has-minibar{padding-bottom:96px}
+.wrap{max-width:1100px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.015em;margin:0;text-wrap:balance}
+h2{font-size:1.15rem;font-weight:700}
+p{margin:0}
+.num,.money{font-variant-numeric:tabular-nums}
+
+/* encabezado */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 20px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand h1{font-size:1.6rem;font-weight:700;line-height:1}
+.brand small{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+.ring{width:46px;height:46px;border-radius:50%;flex:none;position:relative;background:radial-gradient(circle at 35% 30%,var(--accent-2),var(--accent))}
+.ring::before{content:"";position:absolute;inset:15px;border-radius:50%;background:var(--bg)}
+.ring::after{content:"";position:absolute;left:9px;top:12px;width:5px;height:2px;border-radius:2px;background:#fff;transform:rotate(-24deg);box-shadow:17px -3px 0 #fff,24px 13px 0 #fff,3px 19px 0 #fff,20px 26px 0 #fff}
+.tabs{display:flex;gap:4px;padding:5px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.tabs a{padding:9px 18px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:600;white-space:nowrap}
+.tabs a:hover{color:var(--ink)}
+.tabs a[aria-current="page"]{background:var(--accent);color:var(--on-accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px}
+
+.note{background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:10px 14px;font-size:.9rem;margin-bottom:16px}
+.view[hidden]{display:none}
+
+/* tarjetas y formularios */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow);min-width:0}
+.card+.card{margin-top:18px}
+.card-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.help{color:var(--muted);font-size:.82rem;line-height:1.4}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f>span,.f>label{font-size:.8rem;font-weight:600;color:var(--muted)}
+input,select,textarea{
+  width:100%;min-width:0;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px;
+  background:var(--field);color:var(--ink);font:inherit;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:8px}
+.span2{grid-column:1/-1}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:999px;padding:11px 20px;font-weight:700;background:var(--accent);color:var(--on-accent)}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--accent-soft);color:var(--accent)}
+.btn.small{padding:7px 14px;font-size:.88rem}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.stat{min-width:0}
+
+/* Compras */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.stat span{display:block;font-size:.8rem;font-weight:600;color:var(--muted)}
+.stat strong{display:block;font-family:var(--display);font-size:1.5rem;line-height:1.2;margin-top:2px}
+.stat small{color:var(--muted)}
+.stat.hot{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.stat.hot span,.stat.hot small{color:inherit;opacity:.85}
+.compras{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:18px;align-items:start}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-areas:"chk main price act";gap:6px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.chk{grid-area:chk;width:30px;height:30px;border-radius:50%;border:2px solid var(--accent-2);background:transparent;color:var(--on-accent);display:grid;place-items:center;font-weight:800;padding:0}
+.chk[aria-pressed="true"]{background:var(--profit);border-color:var(--profit)}
+.main{grid-area:main;min-width:0}
+.main b{display:block;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
+.price{grid-area:price;text-align:right}
+.price b{display:block;font-family:var(--display);font-size:1.05rem}
+.price small{color:var(--muted)}
+.act{grid-area:act;display:flex;gap:6px}
+.link{border:0;background:transparent;color:var(--accent);font-weight:600;padding:6px 8px;border-radius:8px}
+.link:hover{background:var(--accent-soft)}
+.link.danger{color:var(--bad)}
+.item.done .main b{text-decoration:line-through;text-decoration-color:var(--accent-2);color:var(--muted)}
+.tag{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:999px;font-size:.72rem;font-weight:700;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.empty{padding:26px 8px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--display);font-size:1.1rem;margin-bottom:4px}
+.places{display:grid;gap:8px}
+.place{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:14px;background:var(--field);border:1px solid var(--line)}
+.place span{min-width:0;overflow-wrap:anywhere}
+.preview{min-height:1.4em;color:var(--accent);font-weight:600;font-size:.88rem}
+
+/* Precio de venta */
+.pricing{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:18px;align-items:start}
+.result{position:sticky;top:16px;min-width:0}
+.line{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--field)}
+.line+.line{margin-top:10px}
+.line .sub{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.line .sub small{display:block;color:var(--muted)}
+.eyebrow{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.big{font-family:var(--display);font-weight:700;font-size:3.1rem;line-height:1.05;letter-spacing:-.03em;color:var(--accent);margin:4px 0}
+.bar{display:flex;height:22px;border-radius:999px;overflow:hidden;background:var(--line);margin:16px 0 12px}
+.bar i{display:block;height:100%}
+.legend{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.legend li{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:.9rem}
+.legend .dot{width:12px;height:12px;border-radius:4px}
+.legend .pc{color:var(--muted);min-width:3.2em;text-align:right}
+.s1{background:var(--c1)}.s2{background:var(--c2)}.s3{background:var(--c3)}.s4{background:var(--c4)}.s5{background:var(--c5)}.s6{background:var(--c6)}.s7{background:var(--profit)}
+.facts{display:grid;gap:10px;margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.facts div{display:flex;justify-content:space-between;gap:14px;align-items:baseline}
+.facts dt{color:var(--muted);font-size:.88rem}
+.facts dd{margin:0;font-weight:700;text-align:right}
+.cmp{margin-top:16px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);font-size:.9rem}
+.cmp.bad{background:var(--warn-bg);color:var(--warn-ink)}
+.scroll{overflow-x:auto;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.minibar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:none;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.minibar b{font-family:var(--display);font-size:1.5rem;color:var(--accent)}
+.minibar small{color:var(--muted);text-align:right}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:.9rem;z-index:20;max-width:calc(100vw - 32px)}
+.toast[hidden]{display:none}
+.savestate{color:var(--muted);font-size:.82rem}
+
+@media (max-width:920px){
+  .compras,.pricing{grid-template-columns:minmax(0,1fr)}
+  .result{position:static}
+  .minibar.on{display:flex}
+}
+@media (max-width:640px){
+  .item{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"chk main main" "chk price act"}
+  .big{font-size:2.6rem}
+}
+@media (prefers-reduced-motion:no-preference){
+  .bar i{transition:width .35s ease}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="ring" aria-hidden="true"></span>
+      <div><h1>Panel Donuts</h1><small>Compras y precio de venta, en pesos colombianos</small></div>
+    </div>
+    <nav class="tabs" aria-label="Secciones">
+      <a href="#compras" id="tab-compras">Compras</a>
+      <a href="#precio" id="tab-precio">Precio de venta</a>
+    </nav>
+  </header>
+
+  <p class="note" id="conn" hidden></p>
+
+  <main>
+    <!-- COMPRAS -->
+    <section class="view" id="view-compras" aria-label="Compras">
+      <div class="stats" id="stats"></div>
+      <div class="compras">
+        <form class="card" id="pform" autocomplete="off">
+          <div class="card-head"><h2 id="pform-title">Anotar compra</h2></div>
+          <div class="grid" style="grid-template-columns:1fr">
+            <label class="f"><span>Producto o ingrediente</span><input id="f-name" required maxlength="80" placeholder="Harina de trigo"></label>
+            <label class="f"><span>Categoría</span><select id="f-cat"></select></label>
+            <div class="f" role="group" aria-label="Cantidad y unidad">
+              <span>Cantidad que compras</span>
+              <div class="pair">
+                <input id="f-qty" type="number" min="0" step="any" inputmode="decimal" required placeholder="5" aria-label="Cantidad">
+                <select id="f-unit" aria-label="Unidad"></select>
+              </div>
+            </div>
+            <label class="f"><span>Precio total (COP)</span><input id="f-price" type="number" min="0" step="any" inputmode="numeric" required placeholder="19000"></label>
+            <p class="preview" id="unitpreview" aria-live="polite"></p>
+            <label class="f"><span>Dónde la vas a comprar</span><input id="f-place" list="places" maxlength="60" placeholder="Plaza de mercado, D1, Éxito"><datalist id="places"></datalist></label>
+            <div class="pair">
+              <label class="f"><span>Fecha</span><input id="f-date" type="date"></label>
+              <label class="f"><span>Estado</span><select id="f-status"><option value="pendiente">Por comprar</option><option value="comprado">Comprado</option></select></label>
+            </div>
+            <label class="f"><span>Notas</span><textarea id="f-notes" rows="2" maxlength="200" placeholder="Marca, presentación, si hay oferta"></textarea></label>
+          </div>
+          <div class="actions">
+            <button class="btn" type="submit" id="f-save">Guardar compra</button>
+            <button class="btn ghost" type="button" id="f-cancel" hidden>Cancelar</button>
+          </div>
+        </form>
+
+        <div>
+          <section class="card" aria-label="Lista de compras">
+            <div class="card-head">
+              <h2>Lista de compras</h2>
+              <div class="chips" id="chips">
+                <button class="chip" type="button" data-filter="todas" aria-pressed="true">Todas</button>
+                <button class="chip" type="button" data-filter="pendiente" aria-pressed="false">Por comprar</button>
+                <button class="chip" type="button" data-filter="comprado" aria-pressed="false">Compradas</button>
+              </div>
+            </div>
+            <div id="plist"></div>
+          </section>
+          <section class="card" id="placescard" aria-label="Pendientes por lugar" hidden>
+            <div class="card-head"><h2>Pendientes por lugar</h2><span class="help">Para armar tu ruta de compras</span></div>
+            <div class="places" id="placeslist"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRECIO DE VENTA -->
+    <section class="view" id="view-precio" aria-label="Precio de venta" hidden>
+      <p class="note" id="exnote">Los valores de esta calculadora son un ejemplo para una tanda de 12 donuts. Cámbialos por tus costos reales y el precio se actualiza solo.</p>
+      <div class="pricing">
+        <div id="pform2">
+          <section class="card">
+            <div class="card-head"><h2>Tu producto</h2><span class="savestate" id="savestate"></span></div>
+            <div class="grid">
+              <label class="f"><span>Nombre del producto</span><input data-k="name" maxlength="60"></label>
+              <label class="f"><span>Donuts que salen por tanda</span><input data-k="units" type="number" min="1" step="1" inputmode="numeric"></label>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Ingredientes, toppings y empaque</h2></div>
+            <p class="help" style="margin-bottom:12px">Enlaza cada línea con una compra de tu lista para que el costo se calcule solo, o escribe el costo a mano. Marca si se gasta por tanda (la masa) o por donut (el topping o la caja).</p>
+            <div id="lines"></div>
+            <div class="actions"><button class="btn ghost small" type="button" id="addline">Añadir ingrediente</button></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Tiempo y servicios por tanda</h2></div>
+            <div class="grid">
+              <label class="f"><span>Horas de trabajo por tanda</span><input data-k="hours" type="number" min="0" step="any" inputmode="decimal"></label>
+              <label class="f"><span>Valor de tu hora (COP)</span><input data-k="hourRate" type="number" min="0" step="any" inputmode="numeric"></label>
+              <label class="f"><span>Gas y energía por tanda (COP)</span><input data-k="energy" type="number" min="0" step="any" inputmode="numeric"></label>
+              <label class="f"><span>Merma o desperdicio (%)</span><input data-k="merma" type="number" min="0" max="50" step="any" inputmode="decimal"></label>
+            </div>
+            <p class="help" style="margin-top:10px">La merma cubre masa que se quema, toppings que se caen y donuts que no se venden.</p>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Costos fijos del mes</h2></div>
+            <div class="grid">
+              <label class="f"><span>Total de costos fijos (COP al mes)</span><input data-k="fixedMonthly" type="number" min="0" step="any" inputmode="numeric"></label>
+              <label class="f"><span>Donuts que piensas vender al mes</span><input data-k="monthlyUnits" type="number" min="1" step="1" inputmode="numeric"></label>
+            </div>
+            <p class="help" style="margin-top:10px">Arriendo de cocina, internet, plan de celular, publicidad, permisos. Se reparten entre los donuts que vendes.</p>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Ganancia y cobro</h2></div>
+            <div class="grid">
+              <label class="f"><span>Ganancia que quieres (% del precio)</span><input data-k="margin" type="number" min="0" max="90" step="any" inputmode="decimal"></label>
+              <label class="f"><span>Comisión de cobro (%)</span><input data-k="commission" type="number" min="0" max="30" step="any" inputmode="decimal"></label>
+              <label class="f"><span>Redondear el precio a</span>
+                <select data-k="round"><option value="50">$ 50</option><option value="100">$ 100</option><option value="500">$ 500</option><option value="1000">$ 1.000</option></select></label>
+              <label class="f"><span>Descuento al llevar 6 o más (%)</span><input data-k="boxDiscount" type="number" min="0" max="50" step="any" inputmode="decimal"></label>
+              <label class="f span2"><span>Precio de la competencia por donut (opcional)</span><input data-k="competitor" type="number" min="0" step="any" inputmode="numeric" placeholder="Lo que cobra otra donutería cerca"></label>
+            </div>
+            <p class="help" style="margin-top:10px">La comisión aplica si cobras por Nequi, datáfono o una plataforma de domicilios. Si cobras solo en efectivo, déjala en 0.</p>
+          </section>
+        </div>
+
+        <aside class="card result" id="result" aria-label="Resultado"></aside>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="minibar" id="minibar"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+'use strict';
+
+var COP=new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0});
+var NUM=new Intl.NumberFormat('es-CO',{maximumFractionDigits:2});
+function money(n){return isFinite(n)?COP.format(Math.round(n)):'—';}
+function num(v){var n=parseFloat(v);return isFinite(n)?n:0;}
+function pct(x){return (x*100).toFixed(1).replace('.',',')+'%';}
+function $(s,r){return (r||document).querySelector(s);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function uid(){return Math.random().toString(36).slice(2,10);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDate(s){if(!s)return '';var d=new Date(s+'T00:00:00');return isNaN(d)?'':d.toLocaleDateString('es-CO',{day:'numeric',month:'short'});}
+var ls={
+  get:function(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},
+  set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+};
+
+var UNITS={
+  g:{label:'g',fam:'peso',f:1}, kg:{label:'kg',fam:'peso',f:1000},
+  ml:{label:'ml',fam:'volumen',f:1}, l:{label:'L',fam:'volumen',f:1000},
+  und:{label:'unidad',fam:'unidad',f:1}, doc:{label:'docena',fam:'unidad',f:12}
+};
+var BASE={peso:'g',volumen:'ml',unidad:'und'};
+var CATS=['Masa y base','Cobertura','Toppings','Rellenos','Empaque','Servicios','Utensilios y equipos','Otro'];
+function unitsOfFam(fam){return Object.keys(UNITS).filter(function(k){return UNITS[k].fam===fam;});}
+function unitCostBase(p){var u=UNITS[p.unit];if(!u)return 0;var q=num(p.qty)*u.f;return q>0?num(p.price)/q:0;}
+function costPerDisplay(p){
+  var u=UNITS[p.unit];if(!u)return null;var c=unitCostBase(p);
+  if(u.fam==='peso')return {v:c*1000,per:'kg'};
+  if(u.fam==='volumen')return {v:c*1000,per:'litro'};
+  return {v:c,per:'unidad'};
+}
+
+function defaultPricing(){
+  function L(name,manual,scope){return {id:uid(),ref:'',name:name,qty:0,unit:'g',manual:manual,scope:scope};}
+  return {
+    example:true, name:'Donut con toppings', units:12,
+    lines:[
+      L('Harina de trigo',4500,'tanda'),L('Huevos',2500,'tanda'),L('Leche',1200,'tanda'),L('Levadura',800,'tanda'),
+      L('Azúcar y sal',1000,'tanda'),L('Mantequilla',2500,'tanda'),L('Aceite para freír',2500,'tanda'),
+      L('Cobertura de chocolate',4500,'tanda'),L('Chispas y grageas',1800,'tanda'),L('Arequipe',1700,'tanda'),L('Otros toppings',1000,'tanda'),
+      L('Caja o bolsa',300,'donut')
+    ],
+    hours:2, hourRate:4000, energy:2500, merma:5,
+    fixedMonthly:100000, monthlyUnits:300,
+    margin:35, commission:1.5, round:100, boxDiscount:8, competitor:0
+  };
+}
+
+var state={
+  mode:'loading', db:null, purchases:[], filter:'todas', editing:null, confirmDel:null,
+  pricing:defaultPricing(), view:'compras', conn:''
+};
+
+/* ---------- guardado ---------- */
+var saveTimer=null, saving=false, dirty=false, connTimer=null;
+
+function setSaveState(t){var el=$('#savestate');if(el)el.textContent=t;}
+function toast(t){
+  var el=$('#toast');el.textContent=t;el.hidden=false;
+  clearTimeout(toast._t);toast._t=setTimeout(function(){el.hidden=true;},2600);
+}
+function renderConn(){
+  var el=$('#conn'),t='';
+  if(state.mode==='local')t='Tus datos se guardan solo en este navegador. Si abres el panel en otro aparato, no los verás.';
+  else if(state.conn==='slow')t='No se pudo confirmar el guardado todavía. Lo que ves puede no estar al día.';
+  else if(state.conn==='error')t='Se perdió la conexión con el guardado. Recarga la página para volver a intentarlo.';
+  el.textContent=t;el.hidden=!t;
+}
+function persistLocal(){ls.set('pd.purchases',state.purchases);}
+
+async function writePurchase(id,data){
+  if(state.mode==='db'){
+    var ref=id?state.db.collection('purchases').doc(id):state.db.collection('purchases').doc();
+    await ref.set(data);
+  }else{
+    if(id){state.purchases=state.purchases.map(function(p){return p.id===id?Object.assign({id:id},data):p;});}
+    else{state.purchases.push(Object.assign({id:uid()},data));}
+    persistLocal();renderPurchases();refreshLinesIfIdle();recalc();
+  }
+}
+async function updateStatus(id,status){
+  if(state.mode==='db'){await state.db.collection('purchases').doc(id).update({status:status});}
+  else{state.purchases=state.purchases.map(function(p){if(p.id===id)p.status=status;return p;});persistLocal();renderPurchases();}
+}
+async function removePurchase(id){
+  if(state.mode==='db'){await state.db.collection('purchases').doc(id).delete();}
+  else{state.purchases=state.purchases.filter(function(p){return p.id!==id;});persistLocal();renderPurchases();refreshLinesIfIdle();recalc();}
+}
+
+function scheduleSave(){
+  dirty=true;clearTimeout(saveTimer);setSaveState('Guardando…');
+  saveTimer=setTimeout(flush,700);
+}
+async function flush(){
+  if(saving){saveTimer=setTimeout(flush,300);return;}
+  dirty=false;saving=true;
+  try{
+    var data=JSON.parse(JSON.stringify(state.pricing));
+    if(state.mode==='db'){await state.db.doc('settings/pricing').set(data);setSaveState('Guardado');}
+    else{ls.set('pd.pricing',data);setSaveState('Guardado en este navegador');}
+  }catch(e){setSaveState('No se pudo guardar');toast('No se pudo guardar los cambios');}
+  saving=false;
+}
+
+/* ---------- navegación ---------- */
+function route(){
+  var h=(location.hash||'').replace('#','');
+  state.view=h==='precio'?'precio':'compras';
+  $('#view-compras').hidden=state.view!=='compras';
+  $('#view-precio').hidden=state.view!=='precio';
+  ['compras','precio'].forEach(function(k){
+    var a=$('#tab-'+k);if(state.view===k)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+  });
+  $('#minibar').classList.toggle('on',state.view==='precio');
+  document.body.classList.toggle('has-minibar',state.view==='precio');
+}
+
+/* ---------- compras ---------- */
+function sortedPurchases(){
+  return state.purchases.slice().sort(function(a,b){
+    if(a.status!==b.status)return a.status==='pendiente'?-1:1;
+    var d=String(b.date||'').localeCompare(String(a.date||''));
+    return d||((b.createdAt||0)-(a.createdAt||0));
+  });
+}
+function renderStats(){
+  var pend=0,comp=0,np=0,nc=0;
+  state.purchases.forEach(function(p){
+    if(p.status==='pendiente'){pend+=num(p.price);np++;}else{comp+=num(p.price);nc++;}
+  });
+  $('#stats').innerHTML=
+    '<div class="stat hot"><span>Por comprar</span><strong class="money">'+money(pend)+'</strong><small>'+np+(np===1?' ítem':' ítems')+'</small></div>'+
+    '<div class="stat"><span>Ya comprado</span><strong class="money">'+money(comp)+'</strong><small>'+nc+(nc===1?' ítem':' ítems')+'</small></div>'+
+    '<div class="stat"><span>Total anotado</span><strong class="money">'+money(pend+comp)+'</strong><small>'+state.purchases.length+' compras</small></div>';
+}
+function renderPurchases(){
+  renderStats();
+  var dl=$('#places'),seen={};
+  state.purchases.forEach(function(p){if(p.place)seen[p.place]=1;});
+  dl.innerHTML=Object.keys(seen).map(function(n){return '<option value="'+esc(n)+'">';}).join('');
+
+  var box=$('#plist');
+  if(state.mode==='loading'){box.innerHTML='<div class="empty">Cargando tus compras…</div>';return;}
+  var rows=sortedPurchases().filter(function(p){return state.filter==='todas'||p.status===state.filter;});
+  if(!rows.length){
+    box.innerHTML=state.purchases.length
+      ?'<div class="empty"><b>Nada en este filtro</b>Cambia el filtro para ver el resto de tus compras.</div>'
+      :'<div class="empty"><b>Aún no anotas ninguna compra</b>Usa el formulario: producto, cantidad, precio total y dónde la vas a comprar.</div>';
+  }else{
+    box.innerHTML=rows.map(function(p){
+      var done=p.status==='comprado',u=UNITS[p.unit]||UNITS.und,cd=costPerDisplay(p);
+      var meta=[p.place||'Sin lugar',NUM.format(num(p.qty))+' '+u.label,fmtDate(p.date),p.category].filter(Boolean).join(' · ');
+      var del=state.confirmDel===p.id;
+      return '<div class="item'+(done?' done':'')+'" data-id="'+esc(p.id)+'">'+
+        '<button class="chk" type="button" data-act="toggle" aria-pressed="'+done+'" aria-label="'+(done?'Pasar a por comprar':'Marcar como comprado')+': '+esc(p.name)+'">'+(done?'✓':'')+'</button>'+
+        '<div class="main"><b>'+esc(p.name)+(p.example?'<span class="tag">ejemplo</span>':'')+'</b><span class="meta">'+esc(meta)+'</span>'+(p.notes?'<span class="meta"><br>'+esc(p.notes)+'</span>':'')+'</div>'+
+        '<div class="price money"><b>'+money(num(p.price))+'</b><small>'+(cd&&cd.v>0?money(cd.v)+' por '+cd.per:'')+'</small></div>'+
+        '<div class="act"><button class="link" type="button" data-act="edit">Editar</button><button class="link danger" type="button" data-act="del">'+(del?'¿Borrar?':'Borrar')+'</button></div>'+
+      '</div>';
+    }).join('');
+  }
+  // pendientes por lugar
+  var by={};
+  state.purchases.forEach(function(p){
+    if(p.status!=='pendiente')return;
+    var k=p.place||'Sin lugar';by[k]=by[k]||{n:0,t:0};by[k].n++;by[k].t+=num(p.price);
+  });
+  var keys=Object.keys(by).sort(function(a,b){return by[b].t-by[a].t;});
+  $('#placescard').hidden=!keys.length;
+  $('#placeslist').innerHTML=keys.map(function(k){
+    return '<div class="place"><span><b>'+esc(k)+'</b> <span class="meta">'+by[k].n+(by[k].n===1?' ítem':' ítems')+'</span></span><b class="money">'+money(by[k].t)+'</b></div>';
+  }).join('');
+}
+
+function fillUnitSelects(){
+  $('#f-unit').innerHTML=Object.keys(UNITS).map(function(k){return '<option value="'+k+'">'+UNITS[k].label+'</option>';}).join('');
+  $('#f-cat').innerHTML=CATS.map(function(c){return '<option>'+esc(c)+'</option>';}).join('');
+}
+function resetForm(){
+  state.editing=null;
+  $('#pform').reset();
+  $('#f-unit').value='kg';$('#f-status').value='pendiente';$('#f-date').value=todayStr();
+  $('#pform-title').textContent='Anotar compra';$('#f-save').textContent='Guardar compra';$('#f-cancel').hidden=true;
+  $('#unitpreview').textContent='';
+}
+function previewUnit(){
+  var p={qty:$('#f-qty').value,unit:$('#f-unit').value,price:$('#f-price').value};
+  var cd=num(p.qty)>0&&num(p.price)>0?costPerDisplay(p):null;
+  $('#unitpreview').textContent=cd?'Te cuesta '+money(cd.v)+' por '+cd.per+'.':'';
+}
+function startEdit(id){
+  var p=state.purchases.find(function(x){return x.id===id;});if(!p)return;
+  state.editing=id;
+  $('#f-name').value=p.name||'';$('#f-cat').value=p.category||CATS[0];$('#f-qty').value=p.qty;$('#f-unit').value=p.unit;
+  $('#f-price').value=p.price;$('#f-place').value=p.place||'';$('#f-date').value=p.date||todayStr();
+  $('#f-status').value=p.status;$('#f-notes').value=p.notes||'';
+  $('#pform-title').textContent='Editar compra';$('#f-save').textContent='Guardar cambios';$('#f-cancel').hidden=false;
+  previewUnit();
+  $('#pform').scrollIntoView({behavior:'smooth',block:'start'});
+  $('#f-name').focus({preventScroll:true});
+}
+
+/* ---------- calculadora ---------- */
+function purchaseById(id){return id?state.purchases.find(function(p){return p.id===id;}):null;}
+function lineCost(l){
+  var p=purchaseById(l.ref);
+  if(p){
+    var u=UNITS[l.unit],pu=UNITS[p.unit];
+    if(!u||!pu||u.fam!==pu.fam)return 0;
+    return num(l.qty)*u.f*unitCostBase(p);
+  }
+  return num(l.manual);
+}
+function calc(p){
+  var units=Math.max(0,Math.floor(num(p.units)));
+  var ing=0;
+  p.lines.forEach(function(l){var c=lineCost(l);ing+=l.scope==='donut'?c*units:c;});
+  var merma=ing*num(p.merma)/100,labor=num(p.hours)*num(p.hourRate),energy=num(p.energy);
+  var varTanda=ing+merma+labor+energy;
+  function per(n){return units>0?n/units:0;}
+  var fixedPer=num(p.monthlyUnits)>0?num(p.fixedMonthly)/num(p.monthlyUnits):0;
+  var varPer=per(varTanda),cost=varPer+fixedPer;
+  var m=num(p.margin)/100,c=num(p.commission)/100,denom=1-m-c,step=num(p.round)||1;
+  var ok=units>0&&denom>0.05;
+  var price=ok?Math.ceil(cost/denom/step-1e-9)*step:NaN;
+  var minPrice=units>0&&c<0.95?Math.ceil(cost/(1-c)/step-1e-9)*step:NaN;
+  var comm=price*c,profit=price*(1-c)-cost;
+  var contrib=price*(1-c)-varPer;
+  var be=ok&&contrib>0&&num(p.fixedMonthly)>0?Math.ceil(num(p.fixedMonthly)/contrib):null;
+  var comp=num(p.competitor);
+  return {
+    units:units,ok:ok,cost:cost,price:price,minPrice:minPrice,profit:profit,comm:comm,c:c,step:step,
+    parts:{ing:per(ing),merma:per(merma),labor:per(labor),energy:per(energy),fixed:fixedPer},
+    profitTanda:profit*units,profitMonth:profit*num(p.monthlyUnits),be:be,comp:comp,
+    profitAtComp:comp>0?comp*(1-c)-cost:NaN
+  };
+}
+function boxRows(r,disc){
+  return [1,3,6,12].map(function(n){
+    var total=n>=6?Math.ceil(r.price*n*(1-disc/100)/r.step-1e-9)*r.step:r.price*n;
+    return {n:n,total:total,each:total/n,profit:total*(1-r.c)-r.cost*n,off:n>=6&&disc>0};
+  });
+}
+function recalc(){
+  var p=state.pricing,r=calc(p),box=$('#result'),mini=$('#minibar');
+  if(!r.ok){
+    var why=r.units<=0?'Escribe cuántos donuts salen por tanda.':'La ganancia y la comisión juntas deben ser menores al 95%.';
+    box.innerHTML='<span class="eyebrow">Precio sugerido por donut</span><div class="big">—</div><p class="help">'+why+'</p>';
+    mini.innerHTML='<span class="help">'+why+'</span>';return;
+  }
+  var segs=[
+    {cls:'s1',label:'Ingredientes y empaque',v:r.parts.ing},
+    {cls:'s2',label:'Merma',v:r.parts.merma},
+    {cls:'s3',label:'Tu trabajo',v:r.parts.labor},
+    {cls:'s4',label:'Gas y energía',v:r.parts.energy},
+    {cls:'s5',label:'Costos fijos',v:r.parts.fixed},
+    {cls:'s6',label:'Comisión de cobro',v:r.comm},
+    {cls:'s7',label:'Tu ganancia',v:r.profit}
+  ];
+  var bar=segs.map(function(s){return '<i class="'+s.cls+'" style="width:'+Math.max(0,s.v/r.price*100).toFixed(2)+'%"></i>';}).join('');
+  var legend=segs.map(function(s){
+    return '<li><span class="dot '+s.cls+'"></span><span>'+s.label+'</span><span class="money">'+money(s.v)+'</span><span class="pc num">'+Math.round(s.v/r.price*100)+'%</span></li>';
+  }).join('');
+  var cmp='';
+  if(r.comp>0){
+    var diff=(r.price/r.comp-1)*100,ad=Math.abs(diff).toFixed(0),msg,bad=false;
+    var atc=r.profitAtComp>=0?'ganarías '+money(r.profitAtComp)+' por donut':'perderías '+money(-r.profitAtComp)+' por donut';
+    if(diff>10){msg='Tu precio queda '+ad+'% por encima de la competencia. Si vendes a '+money(r.comp)+', '+atc+'.';bad=r.profitAtComp<0;}
+    else if(diff<-10){msg='Tu precio queda '+ad+'% por debajo de la competencia. Hay espacio para subirlo sin perder mercado.';}
+    else{msg='Tu precio está alineado con la competencia (diferencia de '+ad+'%). Si vendes a '+money(r.comp)+', '+atc+'.';bad=r.profitAtComp<0;}
+    cmp='<div class="cmp'+(bad?' bad':'')+'">'+esc(msg)+'</div>';
+  }
+  var rows=boxRows(r,num(p.boxDiscount)).map(function(b){
+    return '<tr><td>'+b.n+(b.n===1?' donut':' donuts')+(b.off?' <span class="tag">-'+NUM.format(num(p.boxDiscount))+'%</span>':'')+'</td><td class="money">'+money(b.total)+'</td><td class="money">'+money(b.each)+'</td><td class="money">'+money(b.profit)+'</td></tr>';
+  }).join('');
+  box.innerHTML=
+    '<span class="eyebrow">Precio sugerido por donut</span>'+
+    '<div class="big money">'+money(r.price)+'</div>'+
+    '<p class="help">Cada donut te cuesta '+money(r.cost)+' y te deja '+money(r.profit)+' ('+pct(r.profit/r.price)+' del precio).</p>'+
+    '<div class="bar" role="img" aria-label="Cómo se reparte el precio de venta">'+bar+'</div>'+
+    '<ul class="legend">'+legend+'</ul>'+
+    '<dl class="facts">'+
+      '<div><dt>Precio mínimo para no perder</dt><dd class="money">'+money(r.minPrice)+'</dd></div>'+
+      '<div><dt>Ganancia por tanda de '+r.units+'</dt><dd class="money">'+money(r.profitTanda)+'</dd></div>'+
+      '<div><dt>Ganancia del mes vendiendo '+NUM.format(num(p.monthlyUnits))+'</dt><dd class="money">'+money(r.profitMonth)+'</dd></div>'+
+      '<div><dt>Para cubrir costos fijos vende</dt><dd class="money">'+(r.be?NUM.format(r.be)+' al mes':'—')+'</dd></div>'+
+    '</dl>'+cmp+
+    '<h3 style="font-size:1rem;margin-top:20px">Precio por cantidad</h3>'+
+    '<div class="scroll"><table><thead><tr><th>Cantidad</th><th>Precio</th><th>Por donut</th><th>Ganancia</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  mini.innerHTML='<div><small>Precio sugerido por donut</small><br><b class="money">'+money(r.price)+'</b></div><small>Costo '+money(r.cost)+'<br>Ganancia '+money(r.profit)+'</small>';
+}
+
+/* líneas de ingredientes */
+function lineHTML(l){
+  var p=purchaseById(l.ref),units=Math.max(0,Math.floor(num(state.pricing.units)));
+  var opts='<option value="">Escribir costo a mano</option>'+state.purchases.map(function(x){
+    return '<option value="'+esc(x.id)+'"'+(x.id===l.ref?' selected':'')+'>'+esc(x.name)+' · '+esc(x.place||'sin lugar')+'</option>';
+  }).join('');
+  var amount;
+  if(p){
+    var fam=UNITS[p.unit].fam;
+    amount='<div class="f" role="group" aria-label="Cantidad usada"><span>Cantidad usada</span><div class="pair">'+
+      '<input type="number" min="0" step="any" inputmode="decimal" data-f="qty" value="'+esc(l.qty)+'" aria-label="Cantidad usada">'+
+      '<select data-f="unit" aria-label="Unidad">'+unitsOfFam(fam).map(function(k){return '<option value="'+k+'"'+(k===l.unit?' selected':'')+'>'+UNITS[k].label+'</option>';}).join('')+'</select></div></div>';
+  }else{
+    amount='<label class="f"><span>Costo (COP)</span><input type="number" min="0" step="any" inputmode="numeric" data-f="manual" value="'+esc(l.manual)+'"></label>';
+  }
+  var c=lineCost(l),perTanda=l.scope==='donut'?c*units:c;
+  return '<div class="line" data-lid="'+esc(l.id)+'">'+
+    '<label class="f"><span>Ingrediente</span><input data-f="name" maxlength="60" value="'+esc(l.name)+'" placeholder="Nombre"></label>'+
+    '<label class="f"><span>Costo de tu lista de compras</span><select data-f="ref">'+opts+'</select></label>'+
+    amount+
+    '<label class="f"><span>Se gasta</span><select data-f="scope"><option value="tanda"'+(l.scope==='tanda'?' selected':'')+'>Por tanda</option><option value="donut"'+(l.scope==='donut'?' selected':'')+'>Por donut</option></select></label>'+
+    '<div class="sub"><div><small>Por tanda</small><b class="money" data-sub>'+money(perTanda)+'</b></div><button class="link danger" type="button" data-act="rm">Quitar</button></div>'+
+  '</div>';
+}
+function renderLines(){
+  var el=$('#lines');
+  el.innerHTML=state.pricing.lines.length?state.pricing.lines.map(lineHTML).join(''):'<div class="empty">Añade el primer ingrediente de tu receta.</div>';
+}
+function focusInside(sel){var a=document.activeElement;var c=$(sel);return !!(a&&c&&c.contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName));}
+function refreshLinesIfIdle(){if(!focusInside('#lines'))renderLines();}
+function updateSub(row,l){
+  var units=Math.max(0,Math.floor(num(state.pricing.units))),c=lineCost(l);
+  var s=row.querySelector('[data-sub]');if(s)s.textContent=money(l.scope==='donut'?c*units:c);
+}
+function touched(){
+  if(state.pricing.example){state.pricing.example=false;$('#exnote').hidden=true;}
+  scheduleSave();
+}
+function normalizePricing(d){
+  var base=defaultPricing(),out=Object.assign({},base,d);
+  out.lines=Array.isArray(d.lines)?d.lines.map(function(l){return Object.assign({id:uid(),ref:'',name:'',qty:0,unit:'g',manual:0,scope:'tanda'},l);}):base.lines;
+  return out;
+}
+function renderPricingForm(){
+  var p=state.pricing;
+  document.querySelectorAll('#pform2 [data-k]').forEach(function(el){
+    var k=el.dataset.k,v=p[k];
+    el.value=(k==='competitor'&&!num(v))?'':v;
+  });
+  $('#exnote').hidden=!p.example;
+  renderLines();recalc();
+}
+
+/* ---------- eventos ---------- */
+function bind(){
+  window.addEventListener('hashchange',route);
+
+  $('#chips').addEventListener('click',function(e){
+    var b=e.target.closest('[data-filter]');if(!b)return;
+    state.filter=b.dataset.filter;
+    document.querySelectorAll('#chips .chip').forEach(function(c){c.setAttribute('aria-pressed',String(c===b));});
+    renderPurchases();
+  });
+
+  ['#f-qty','#f-price'].forEach(function(s){$(s).addEventListener('input',previewUnit);});
+  $('#f-unit').addEventListener('change',previewUnit);
+
+  $('#pform').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var data={
+      name:$('#f-name').value.trim(),category:$('#f-cat').value,qty:num($('#f-qty').value),unit:$('#f-unit').value,
+      price:num($('#f-price').value),place:$('#f-place').value.trim(),date:$('#f-date').value||todayStr(),
+      status:$('#f-status').value,notes:$('#f-notes').value.trim()
+    };
+    if(!data.name||data.qty<=0){toast('Escribe el producto y una cantidad mayor a 0');return;}
+    var old=state.editing?state.purchases.find(function(x){return x.id===state.editing;}):null;
+    data.createdAt=old&&old.createdAt?old.createdAt:Date.now();
+    try{await writePurchase(state.editing,data);toast(state.editing?'Cambios guardados':'Compra guardada');resetForm();}
+    catch(err){toast('No se pudo guardar la compra');}
+  });
+  $('#f-cancel').addEventListener('click',resetForm);
+
+  $('#plist').addEventListener('click',async function(e){
+    var b=e.target.closest('[data-act]');if(!b)return;
+    var id=b.closest('.item').dataset.id,act=b.dataset.act;
+    try{
+      if(act==='toggle'){
+        var p=state.purchases.find(function(x){return x.id===id;});
+        await updateStatus(id,p.status==='comprado'?'pendiente':'comprado');
+      }else if(act==='edit'){startEdit(id);}
+      else if(act==='del'){
+        if(state.confirmDel===id){state.confirmDel=null;await removePurchase(id);toast('Compra borrada');}
+        else{state.confirmDel=id;renderPurchases();clearTimeout(bind._t);bind._t=setTimeout(function(){state.confirmDel=null;renderPurchases();},4000);}
+      }
+    }catch(err){toast('No se pudo completar la acción');}
+  });
+
+  document.querySelectorAll('#pform2 [data-k]').forEach(function(el){
+    var h=function(){
+      var k=el.dataset.k;
+      state.pricing[k]=(k==='name')?el.value:num(el.value);
+      touched();
+      if(k==='units')document.querySelectorAll('#lines .line').forEach(function(row){var l=state.pricing.lines.find(function(x){return x.id===row.dataset.lid;});if(l)updateSub(row,l);});
+      recalc();
+    };
+    el.addEventListener(el.tagName==='SELECT'?'change':'input',h);
+  });
+
+  var lines=$('#lines');
+  lines.addEventListener('input',function(e){
+    var t=e.target,row=t.closest('[data-lid]');if(!row||t.tagName==='SELECT'||!t.dataset.f)return;
+    var l=state.pricing.lines.find(function(x){return x.id===row.dataset.lid;});if(!l)return;
+    l[t.dataset.f]=t.dataset.f==='name'?t.value:num(t.value);
+    touched();updateSub(row,l);recalc();
+  });
+  lines.addEventListener('change',function(e){
+    var t=e.target,row=t.closest('[data-lid]');if(!row||t.tagName!=='SELECT')return;
+    var l=state.pricing.lines.find(function(x){return x.id===row.dataset.lid;});if(!l)return;
+    var f=t.dataset.f;
+    if(f==='ref'){
+      l.ref=t.value;var p=purchaseById(l.ref);
+      if(p){l.name=p.name;l.unit=BASE[UNITS[p.unit].fam];}
+    }else l[f]=t.value;
+    touched();renderLines();recalc();
+  });
+  lines.addEventListener('click',function(e){
+    var b=e.target.closest('[data-act="rm"]');if(!b)return;
+    var id=b.closest('[data-lid]').dataset.lid;
+    state.pricing.lines=state.pricing.lines.filter(function(x){return x.id!==id;});
+    touched();renderLines();recalc();
+  });
+  $('#addline').addEventListener('click',function(){
+    state.pricing.lines.push({id:uid(),ref:'',name:'',qty:0,unit:'g',manual:0,scope:'tanda'});
+    touched();renderLines();recalc();
+    var ins=document.querySelectorAll('#lines .line [data-f="name"]');if(ins.length)ins[ins.length-1].focus();
+  });
+}
+
+/* ---------- arranque ---------- */
+async function boot(){
+  fillUnitSelects();resetForm();bind();route();
+  renderPurchases();renderPricingForm();
+  var db=null;
+  try{db=window.claude&&window.claude.use?await window.claude.use('db'):null;}catch(e){db=null;}
+  if(db){
+    state.mode='db';state.db=db;
+    connTimer=setTimeout(function(){state.conn='slow';renderConn();},10000);
+    db.collection('purchases').onSnapshot(function(snap){
+      state.purchases=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+      if(!snap.metadata.fromCache){clearTimeout(connTimer);if(state.conn==='slow'){state.conn='';renderConn();}}
+      renderPurchases();refreshLinesIfIdle();recalc();
+    },function(){state.conn='error';renderConn();});
+    db.doc('settings/pricing').onSnapshot(function(snap){
+      if(!snap.exists||snap.metadata.hasPendingWrites||dirty||saving)return;
+      var d=JSON.parse(JSON.stringify(snap.data()));
+      if(JSON.stringify(d)===JSON.stringify(state.pricing)||focusInside('#pform2'))return;
+      state.pricing=normalizePricing(d);renderPricingForm();
+    },function(){state.conn='error';renderConn();});
+  }else{
+    state.mode='local';
+    var lp=ls.get('pd.purchases');state.purchases=Array.isArray(lp)?lp:[];
+    var pr=ls.get('pd.pricing');if(pr&&typeof pr==='object')state.pricing=normalizePricing(pr);
+    renderConn();renderPurchases();renderPricingForm();
+  }
+}
+boot();
+})();
+</script>
+
+</body></html>
