@@ -13,6 +13,7 @@
   --c1:#e0558a; --c2:#f3a2c0; --c3:#9c5bc4; --c4:#f2a06b; --c5:#3f9d97; --c6:#c3a0b1; --profit:#2f9e6e;
   --shadow:0 14px 34px -22px rgba(214,51,108,.55);
   --display:'Bricolage Grotesque',system-ui,sans-serif; --body:'Figtree',system-ui,sans-serif;
+  --inc:#2a78d6; --exp:#d6336c; --net:#6250d6; --grid:#f4dce6; --axis:#d8b6c7;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -22,6 +23,7 @@
     --warn-bg:#4a3414; --warn-ink:#ffd699; --bad:#ff9b94;
     --c1:#ff7aa9; --c2:#ffb3cf; --c3:#c08bf0; --c4:#ffb27d; --c5:#6cc8c1; --c6:#b88ba0; --profit:#5fd9a0;
     --shadow:0 14px 34px -22px rgba(0,0,0,.7);
+    --inc:#3987e5; --exp:#e8508a; --net:#9085e9; --grid:#3d2030; --axis:#5c3347;
     color-scheme:dark;
   }
 }
@@ -32,8 +34,10 @@
   --warn-bg:#4a3414; --warn-ink:#ffd699; --bad:#ff9b94;
   --c1:#ff7aa9; --c2:#ffb3cf; --c3:#c08bf0; --c4:#ffb27d; --c5:#6cc8c1; --c6:#b88ba0; --profit:#5fd9a0;
   --shadow:0 14px 34px -22px rgba(0,0,0,.7);
+  --inc:#3987e5; --exp:#e8508a; --net:#9085e9; --grid:#3d2030; --axis:#5c3347;
   color-scheme:dark;
 }
+html{-webkit-text-size-adjust:100%}
 *{box-sizing:border-box}
 body{
   background:radial-gradient(900px 320px at 88% -120px,var(--blob),transparent 70%),var(--bg);
@@ -160,15 +164,75 @@ th{color:var(--muted);font-size:.78rem;font-weight:700;text-transform:uppercase;
 .toast[hidden]{display:none}
 .savestate{color:var(--muted);font-size:.82rem}
 
+/* Finanzas */
+.fin-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.stats4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px}
+.stats4 .stat strong{font-size:clamp(1.15rem,3.6vw,1.5rem);overflow-wrap:anywhere}
+.charts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin-bottom:18px}
+.charts .card+.card,.compras>.card+.card{margin-top:0}
+.charts .wide{grid-column:1/-1}
+.chart-card .card-head{margin-bottom:4px}
+.chart-card .help{margin-bottom:10px}
+.chart-box{position:relative;width:100%;min-width:0}
+.chart-box svg{display:block;width:100%;height:auto;overflow:visible}
+.chart-box .empty{padding:34px 8px}
+.ax text{fill:var(--muted);font:12px var(--body)}
+.ax text.val{fill:var(--ink);font-weight:700}
+.ax .gridline{stroke:var(--grid);stroke-width:1}
+.ax .axisline{stroke:var(--axis);stroke-width:1}
+.ax .b-inc{fill:var(--inc)}
+.ax .b-exp{fill:var(--exp)}
+.ax .line-net{fill:none;stroke:var(--net);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.ax .area-net{fill:var(--net);opacity:.1}
+.ax .dot-net{fill:var(--net);stroke:var(--surface);stroke-width:2}
+.ax .xh{stroke:var(--axis);stroke-width:1}
+.ax .hit{fill:transparent;outline:none}
+.ax .hit:hover,.ax .hit:focus{fill:var(--accent-soft)}
+.ax .xov{fill:transparent;outline:none}
+.ax .xov:focus-visible{stroke:var(--accent-2);stroke-width:2}
+.legend-inline{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;color:var(--muted)}
+.legend-inline span{display:inline-flex;align-items:center;gap:7px}
+.legend-inline i{display:inline-block;width:12px;height:12px;border-radius:3px}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:.82rem;box-shadow:var(--shadow);z-index:3;min-width:150px}
+.tip .tt{color:var(--muted);font-weight:600;margin-bottom:4px}
+.tip .row{display:flex;justify-content:space-between;gap:14px;align-items:center}
+.tip .row b{font-size:.95rem}
+.tip .key{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
+details.tbl summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:1.05rem}
+details.tbl[open] summary{margin-bottom:12px}
+details.tbl h3{font-size:.95rem;margin:14px 0 6px}
+.item.inc{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"main price act"}
+
 @media (max-width:920px){
   .compras,.pricing{grid-template-columns:minmax(0,1fr)}
   .result{position:static}
   .minibar.on{display:flex}
 }
+@media (max-width:760px){
+  .charts{grid-template-columns:minmax(0,1fr)}
+}
 @media (max-width:640px){
   .item{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"chk main main" "chk price act"}
+  .item.inc{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"main main" "price act"}
   .big{font-size:2.6rem}
+  .top{margin-bottom:16px}
+  .brand h1{font-size:1.4rem}
+  .tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+  .tabs a{display:grid;place-items:center;min-height:44px;padding:6px 4px;text-align:center;white-space:normal;line-height:1.15;font-size:.88rem}
+  .card{padding:16px;border-radius:18px}
+  input,select,textarea{font-size:16px}
+  .btn{min-height:44px}
+  .btn.small{min-height:40px}
+  .chip{padding:9px 14px}
+  .chk{width:38px;height:38px}
+  .link{padding:10px}
+  .stats,.stats4{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{padding:12px 14px}
+  .fin-top .btn{flex:1 1 auto}
+  .legend li{font-size:.85rem}
+  .tip{min-width:130px}
 }
+body.has-minibar .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 @media (prefers-reduced-motion:no-preference){
   .bar i{transition:width .35s ease}
 }
@@ -183,6 +247,7 @@ th{color:var(--muted);font-size:.78rem;font-weight:700;text-transform:uppercase;
     <nav class="tabs" aria-label="Secciones">
       <a href="#compras" id="tab-compras">Compras</a>
       <a href="#precio" id="tab-precio">Precio de venta</a>
+      <a href="#finanzas" id="tab-finanzas">Finanzas</a>
     </nav>
   </header>
 
@@ -297,6 +362,74 @@ th{color:var(--muted);font-size:.78rem;font-weight:700;text-transform:uppercase;
         <aside class="card result" id="result" aria-label="Resultado"></aside>
       </div>
     </section>
+
+    <!-- FINANZAS -->
+    <section class="view" id="view-finanzas" aria-label="Finanzas" hidden>
+      <div class="fin-top">
+        <div class="chips" id="fchips" role="group" aria-label="Periodo">
+          <button class="chip" type="button" data-p="mes" aria-pressed="true">Este mes</button>
+          <button class="chip" type="button" data-p="pasado" aria-pressed="false">Mes pasado</button>
+          <button class="chip" type="button" data-p="todo" aria-pressed="false">Todo</button>
+        </div>
+        <button class="btn small" type="button" id="goincome">Anotar ingreso</button>
+      </div>
+      <div class="stats4" id="fstats"></div>
+      <p class="help" style="margin:0 0 18px">La utilidad es lo que vendiste menos todo lo que marcaste como comprado en el periodo, aunque todavía no lo hayas usado en una tanda.</p>
+
+      <div class="charts">
+        <section class="card chart-card wide" aria-label="Ingresos y gastos">
+          <div class="card-head">
+            <h2>Ingresos y gastos</h2>
+            <div class="legend-inline"><span><i style="background:var(--inc)"></i>Ingresos</span><span><i style="background:var(--exp)"></i>Gastos</span></div>
+          </div>
+          <p class="help" id="c1sub"></p>
+          <div class="chart-box" id="c1"></div>
+        </section>
+        <section class="card chart-card" aria-label="Utilidad acumulada">
+          <div class="card-head"><h2>Utilidad acumulada</h2></div>
+          <p class="help">Ingresos menos gastos, sumados a lo largo del periodo.</p>
+          <div class="chart-box" id="c2"></div>
+        </section>
+        <section class="card chart-card" aria-label="En qué gastas">
+          <div class="card-head"><h2>En qué gastas</h2></div>
+          <p class="help">Compras marcadas como compradas, por categoría.</p>
+          <div class="chart-box" id="c3"></div>
+        </section>
+      </div>
+
+      <details class="card tbl" id="ftable" style="margin-bottom:18px">
+        <summary>Ver los datos como tabla</summary>
+        <div id="ftablebody"></div>
+      </details>
+
+      <div class="compras" id="incomewrap">
+        <form class="card" id="iform" autocomplete="off">
+          <div class="card-head"><h2 id="iform-title">Anotar ingreso</h2></div>
+          <div class="grid" style="grid-template-columns:1fr">
+            <div class="pair">
+              <label class="f"><span>Fecha</span><input id="i-date" type="date" required></label>
+              <label class="f"><span>Método de pago</span>
+                <select id="i-method"><option>Efectivo</option><option>Nequi</option><option>Daviplata</option><option>Datáfono</option><option>Transferencia</option><option>Otro</option></select></label>
+            </div>
+            <label class="f"><span>Concepto</span><input id="i-concept" maxlength="80" placeholder="Venta de donuts"></label>
+            <div class="pair">
+              <label class="f"><span>Donuts vendidos</span><input id="i-units" type="number" min="0" step="1" inputmode="numeric" placeholder="12"></label>
+              <label class="f"><span>Valor total (COP)</span><input id="i-amount" type="number" min="0" step="any" inputmode="numeric" required placeholder="69600"></label>
+            </div>
+            <p class="preview" id="ipreview" aria-live="polite"></p>
+            <label class="f"><span>Notas</span><textarea id="i-notes" rows="2" maxlength="200" placeholder="Cliente, pedido, evento"></textarea></label>
+          </div>
+          <div class="actions">
+            <button class="btn" type="submit" id="i-save">Guardar ingreso</button>
+            <button class="btn ghost" type="button" id="i-cancel" hidden>Cancelar</button>
+          </div>
+        </form>
+        <section class="card" aria-label="Ingresos anotados">
+          <div class="card-head"><h2>Ingresos anotados</h2></div>
+          <div id="ilist"></div>
+        </section>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -356,7 +489,8 @@ function defaultPricing(){
 
 var state={
   mode:'loading', db:null, purchases:[], filter:'todas', editing:null, confirmDel:null,
-  pricing:defaultPricing(), view:'compras', conn:''
+  pricing:defaultPricing(), view:'compras', conn:'',
+  income:[], fperiod:'mes', iEditing:null, iConfirmDel:null
 };
 
 /* ---------- guardado ---------- */
@@ -413,14 +547,14 @@ async function flush(){
 /* ---------- navegación ---------- */
 function route(){
   var h=(location.hash||'').replace('#','');
-  state.view=h==='precio'?'precio':'compras';
-  $('#view-compras').hidden=state.view!=='compras';
-  $('#view-precio').hidden=state.view!=='precio';
-  ['compras','precio'].forEach(function(k){
+  state.view=(h==='precio'||h==='finanzas')?h:'compras';
+  ['compras','precio','finanzas'].forEach(function(k){
+    $('#view-'+k).hidden=state.view!==k;
     var a=$('#tab-'+k);if(state.view===k)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
   });
   $('#minibar').classList.toggle('on',state.view==='precio');
   document.body.classList.toggle('has-minibar',state.view==='precio');
+  if(state.view==='finanzas')renderFinance();
 }
 
 /* ---------- compras ---------- */
@@ -478,6 +612,7 @@ function renderPurchases(){
   $('#placeslist').innerHTML=keys.map(function(k){
     return '<div class="place"><span><b>'+esc(k)+'</b> <span class="meta">'+by[k].n+(by[k].n===1?' ítem':' ítems')+'</span></span><b class="money">'+money(by[k].t)+'</b></div>';
   }).join('');
+  if(state.view==='finanzas')renderFinance();
 }
 
 function fillUnitSelects(){
@@ -651,6 +786,306 @@ function renderPricingForm(){
   renderLines();recalc();
 }
 
+/* ---------- finanzas ---------- */
+function dn(s){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');return m?Date.UTC(+m[1],+m[2]-1,+m[3])/864e5:null;}
+function sumBy(arr,f){return arr.reduce(function(s,x){return s+num(f(x));},0);}
+function dlabel(n,opt){return new Date(n*864e5).toLocaleDateString('es-CO',Object.assign({timeZone:'UTC'},opt));}
+
+function periodRange(){
+  var t=dn(todayStr()),d=new Date(t*864e5),y=d.getUTCFullYear(),m=d.getUTCMonth();
+  if(state.fperiod==='mes')return {a:Date.UTC(y,m,1)/864e5,b:t};
+  if(state.fperiod==='pasado')return {a:Date.UTC(y,m-1,1)/864e5,b:Date.UTC(y,m,1)/864e5-1};
+  var ds=[];
+  state.income.forEach(function(i){var n=dn(i.date);if(n!=null)ds.push(n);});
+  state.purchases.forEach(function(p){if(p.status==='comprado'){var n=dn(p.date);if(n!=null)ds.push(n);}});
+  if(!ds.length)return {a:t,b:t};
+  return {a:Math.min.apply(null,ds),b:Math.max(t,Math.max.apply(null,ds))};
+}
+function makeBuckets(r){
+  var n=r.b-r.a+1,mode=n<=16?'dia':(n<=100?'semana':'mes'),out=[],i;
+  if(mode==='dia'){for(i=r.a;i<=r.b;i++)out.push({a:i,b:i});}
+  else if(mode==='semana'){for(i=r.a;i<=r.b;i+=7)out.push({a:i,b:Math.min(i+6,r.b)});}
+  else{
+    var cur=r.a;
+    while(cur<=r.b){var d=new Date(cur*864e5),next=Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1)/864e5;out.push({a:cur,b:Math.min(next-1,r.b)});cur=next;}
+  }
+  return {mode:mode,buckets:out};
+}
+function finData(){
+  var r=periodRange(),bk=makeBuckets(r),inc=[],exp=[];
+  state.income.forEach(function(i){var n=dn(i.date);if(n!=null&&n>=r.a&&n<=r.b)inc.push({n:n,r:i});});
+  state.purchases.forEach(function(p){if(p.status!=='comprado')return;var n=dn(p.date);if(n!=null&&n>=r.a&&n<=r.b)exp.push({n:n,r:p});});
+  bk.buckets.forEach(function(b){b.inc=0;b.exp=0;});
+  function put(n,key,v){for(var k=0;k<bk.buckets.length;k++){var b=bk.buckets[k];if(n>=b.a&&n<=b.b){b[key]+=v;return;}}}
+  inc.forEach(function(x){put(x.n,'inc',num(x.r.amount));});
+  exp.forEach(function(x){put(x.n,'exp',num(x.r.price));});
+  var cum=0;
+  bk.buckets.forEach(function(b){b.net=b.inc-b.exp;cum+=b.net;b.cum=cum;});
+  return {r:r,mode:bk.mode,buckets:bk.buckets,inc:inc.map(function(x){return x.r;}),exp:exp.map(function(x){return x.r;})};
+}
+function bShort(b,mode){return mode==='mes'?dlabel(b.a,{month:'short'}):dlabel(b.a,{day:'numeric',month:'short'});}
+function bFull(b,mode){
+  if(mode==='dia')return dlabel(b.a,{weekday:'short',day:'numeric',month:'short'});
+  if(mode==='semana')return b.a===b.b?dlabel(b.a,{day:'numeric',month:'short'}):dlabel(b.a,{day:'numeric',month:'short'})+' – '+dlabel(b.b,{day:'numeric',month:'short'});
+  return dlabel(b.a,{month:'long',year:'numeric'});
+}
+function niceStep(range,target){
+  var raw=range/target,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;
+  return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;
+}
+function axisTicks(lo,hi){
+  if(hi<=lo)hi=lo+1;
+  var step=niceStep(hi-lo,4),a=Math.floor(lo/step)*step,b=Math.ceil(hi/step)*step,t=[];
+  for(var v=a;v<=b+step/2;v+=step)t.push(Math.round(v*1000)/1000);
+  return {ticks:t,min:a,max:b};
+}
+function tickFmt(v){
+  var a=Math.abs(v),s=v<0?'-':'';
+  if(a>=1e6)return s+NUM.format(a/1e6)+' M';
+  if(a>=1e4)return s+NUM.format(a/1e3)+' K';
+  return s+Math.round(a).toLocaleString('es-CO');
+}
+function colPath(x,y,w,y0){
+  var h=y0-y;if(h<=0)return '';
+  var r=Math.min(4,h,w/2);
+  return 'M'+x+','+y0+'V'+(y+r)+'Q'+x+','+y+' '+(x+r)+','+y+'H'+(x+w-r)+'Q'+(x+w)+','+y+' '+(x+w)+','+(y+r)+'V'+y0+'Z';
+}
+function emptyChart(box,t){box.innerHTML='<div class="empty"><b>Sin datos todavía</b>'+esc(t)+'</div>';}
+function tip(box,cx,title,rows){
+  var t=box.querySelector('.tip');if(!t)return;
+  t.textContent='';
+  var h=document.createElement('div');h.className='tt';h.textContent=title;t.appendChild(h);
+  rows.forEach(function(r){
+    var d=document.createElement('div');d.className='row';
+    var l=document.createElement('span'),k=document.createElement('i');
+    k.className='key';k.style.background=r.color;
+    l.appendChild(k);l.appendChild(document.createTextNode(r.label));
+    var v=document.createElement('b');v.textContent=r.value;
+    d.appendChild(l);d.appendChild(v);t.appendChild(d);
+  });
+  t.hidden=false;
+  var w=t.offsetWidth,bw=box.clientWidth,x=cx<bw/2?cx+16:cx-w-16;
+  t.style.left=Math.max(0,Math.min(bw-w,x))+'px';t.style.top='6px';
+}
+function hideTip(box){var t=box.querySelector('.tip');if(t)t.hidden=true;}
+
+function drawBars(box,F){
+  var B=F.buckets,W=Math.floor(box.clientWidth);if(W<40)return;
+  if(!B.some(function(b){return b.inc>0||b.exp>0;})){emptyChart(box,'No hay ingresos ni compras marcadas como compradas en este periodo.');return;}
+  var H=W<480?230:270,m={t:18,r:8,b:28,l:W<480?42:52},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  var mx=0,top={v:0,i:0,k:'inc'};
+  B.forEach(function(b,i){
+    if(b.inc>top.v)top={v:b.inc,i:i,k:'inc'};
+    if(b.exp>top.v)top={v:b.exp,i:i,k:'exp'};
+    mx=Math.max(mx,b.inc,b.exp);
+  });
+  var ax=axisTicks(0,mx);
+  function sy(v){return m.t+ih-(v/ax.max)*ih;}
+  var slot=iw/B.length,bw=Math.max(3,Math.min(24,(slot*0.72-2)/2)),y0=sy(0),s='';
+  ax.ticks.forEach(function(t){
+    var y=sy(t);
+    s+='<line class="'+(t===0?'axisline':'gridline')+'" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(m.l-8)+'" y="'+(y+4)+'" text-anchor="end">'+tickFmt(t)+'</text>';
+  });
+  B.forEach(function(b,i){
+    var lbl=bFull(b,F.mode)+'. Ingresos '+money(b.inc)+', gastos '+money(b.exp)+'.';
+    s+='<rect class="hit" data-i="'+i+'" tabindex="0" role="img" aria-label="'+esc(lbl)+'" x="'+(m.l+i*slot)+'" y="'+m.t+'" width="'+slot+'" height="'+ih+'"/>';
+  });
+  var step=Math.max(1,Math.ceil(52/slot));
+  B.forEach(function(b,i){
+    var cx=m.l+(i+.5)*slot,x1=cx-bw-1,x2=cx+1;
+    s+='<path class="b-inc" style="pointer-events:none" d="'+colPath(x1,sy(b.inc),bw,y0)+'"/>';
+    s+='<path class="b-exp" style="pointer-events:none" d="'+colPath(x2,sy(b.exp),bw,y0)+'"/>';
+    if(i%step===0)s+='<text x="'+cx+'" y="'+(H-8)+'" text-anchor="middle">'+esc(bShort(b,F.mode))+'</text>';
+  });
+  var tcx=m.l+(top.i+.5)*slot+(top.k==='inc'?-bw/2-1:bw/2+1);
+  s+='<text class="val" style="pointer-events:none" x="'+Math.max(30,Math.min(W-30,tcx))+'" y="'+(sy(top.v)-6)+'" text-anchor="middle">'+money(top.v)+'</text>';
+  box.innerHTML='<svg class="ax" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="Barras de ingresos y gastos">'+s+'</svg><div class="tip" hidden></div>';
+  var svg=box.querySelector('svg');
+  function show(i){
+    var b=B[i];
+    tip(box,m.l+(i+.5)*slot,bFull(b,F.mode),[
+      {color:'var(--inc)',label:'Ingresos',value:money(b.inc)},
+      {color:'var(--exp)',label:'Gastos',value:money(b.exp)},
+      {color:'var(--ink)',label:'Utilidad',value:money(b.net)}
+    ]);
+  }
+  svg.addEventListener('pointerover',function(e){var h=e.target.closest('.hit');if(h)show(+h.dataset.i);});
+  svg.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')hideTip(box);});
+  svg.addEventListener('focusin',function(e){var h=e.target.closest('.hit');if(h)show(+h.dataset.i);});
+  svg.addEventListener('focusout',function(){hideTip(box);});
+}
+
+function drawLine(box,F){
+  var B=F.buckets,W=Math.floor(box.clientWidth);if(W<40)return;
+  if(!B.some(function(b){return b.inc>0||b.exp>0;})){emptyChart(box,'Cuando anotes ingresos y compras, aquí verás cómo crece tu utilidad.');return;}
+  var H=W<480?210:240,m={t:26,r:12,b:28,l:W<480?42:52},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  var lo=0,hi=0;
+  B.forEach(function(b){lo=Math.min(lo,b.cum);hi=Math.max(hi,b.cum);});
+  var ax=axisTicks(lo,hi);
+  function sy(v){return m.t+ih-(v-ax.min)/(ax.max-ax.min)*ih;}
+  var slot=iw/B.length;
+  function cx(i){return m.l+(i+.5)*slot;}
+  var s='';
+  ax.ticks.forEach(function(t){
+    var y=sy(t);
+    s+='<line class="'+(t===0?'axisline':'gridline')+'" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(m.l-8)+'" y="'+(y+4)+'" text-anchor="end">'+tickFmt(t)+'</text>';
+  });
+  var pts=B.map(function(b,i){return [cx(i),sy(b.cum)];}),z=sy(0);
+  if(pts.length>1){
+    s+='<path class="area-net" d="M'+pts[0][0]+','+z+pts.map(function(p){return 'L'+p[0]+','+p[1];}).join('')+'L'+pts[pts.length-1][0]+','+z+'Z"/>';
+    s+='<path class="line-net" d="M'+pts.map(function(p){return p[0]+','+p[1];}).join('L')+'"/>';
+  }
+  var step=Math.max(1,Math.ceil(52/slot));
+  B.forEach(function(b,i){if(i%step===0)s+='<text x="'+cx(i)+'" y="'+(H-8)+'" text-anchor="middle">'+esc(bShort(b,F.mode))+'</text>';});
+  var last=pts[pts.length-1],lv=B[B.length-1].cum,ly=last[1]-10<12?last[1]+20:last[1]-10;
+  s+='<line class="xh" id="xh" x1="0" x2="0" y1="'+m.t+'" y2="'+(m.t+ih)+'" visibility="hidden"/>';
+  s+='<circle class="dot-net" id="xhd" r="4.5" cx="0" cy="0" visibility="hidden"/>';
+  s+='<circle class="dot-net" r="4.5" cx="'+last[0]+'" cy="'+last[1]+'"/>';
+  s+='<text class="val" style="pointer-events:none" x="'+Math.max(34,Math.min(W-34,last[0]))+'" y="'+ly+'" text-anchor="middle">'+money(lv)+'</text>';
+  s+='<rect class="xov" tabindex="0" role="img" aria-label="Utilidad acumulada. Usa las flechas para recorrer el periodo." x="'+m.l+'" y="'+m.t+'" width="'+iw+'" height="'+ih+'"/>';
+  box.innerHTML='<svg class="ax" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="Línea de utilidad acumulada">'+s+'</svg><div class="tip" hidden></div>';
+  var svg=box.querySelector('svg'),ov=svg.querySelector('.xov'),xh=svg.querySelector('#xh'),xd=svg.querySelector('#xhd'),cur=B.length-1;
+  var per=F.mode==='dia'?'Del día':(F.mode==='semana'?'De la semana':'Del mes');
+  function at(i){
+    cur=Math.max(0,Math.min(B.length-1,i));
+    var b=B[cur],p=pts[cur];
+    xh.setAttribute('x1',p[0]);xh.setAttribute('x2',p[0]);xh.setAttribute('visibility','visible');
+    xd.setAttribute('cx',p[0]);xd.setAttribute('cy',p[1]);xd.setAttribute('visibility','visible');
+    tip(box,p[0],bFull(b,F.mode),[
+      {color:'var(--net)',label:'Acumulada',value:money(b.cum)},
+      {color:'var(--ink)',label:per,value:money(b.net)}
+    ]);
+  }
+  function off(){xh.setAttribute('visibility','hidden');xd.setAttribute('visibility','hidden');hideTip(box);}
+  ov.addEventListener('pointermove',function(e){var r=ov.getBoundingClientRect();at(Math.floor((e.clientX-r.left)/(r.width/B.length)));});
+  ov.addEventListener('pointerdown',function(e){var r=ov.getBoundingClientRect();at(Math.floor((e.clientX-r.left)/(r.width/B.length)));});
+  ov.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')off();});
+  ov.addEventListener('focus',function(){at(cur);});
+  ov.addEventListener('blur',off);
+  ov.addEventListener('keydown',function(e){
+    if(e.key==='ArrowLeft'){e.preventDefault();at(cur-1);}
+    else if(e.key==='ArrowRight'){e.preventDefault();at(cur+1);}
+  });
+}
+
+function catTotals(F){
+  var cats={};
+  F.exp.forEach(function(p){var k=p.category||'Otro';cats[k]=(cats[k]||0)+num(p.price);});
+  return Object.keys(cats).map(function(k){return {k:k,v:cats[k]};}).sort(function(a,b){return b.v-a.v;});
+}
+function drawCats(box,F){
+  var rows=catTotals(F),W=Math.floor(box.clientWidth);if(W<40)return;
+  if(!rows.length){emptyChart(box,'Marca tus compras como compradas para ver en qué se va la plata.');return;}
+  var total=rows.reduce(function(s,r){return s+r.v;},0);
+  var lw=Math.min(132,Math.round(W*.36)),vw=82,rowH=36,bh=16,H=rows.length*rowH+4;
+  var maxLen=Math.max(30,W-lw-vw),mx=rows[0].v,chars=Math.floor(lw/6.8),s='';
+  s+='<line class="axisline" x1="'+lw+'" x2="'+lw+'" y1="0" y2="'+H+'"/>';
+  rows.forEach(function(r,i){
+    var y=2+i*rowH,by=y+(rowH-bh)/2,len=Math.max(2,r.v/mx*maxLen),rad=Math.min(4,len/2,bh/2);
+    var name=r.k.length>chars?r.k.slice(0,Math.max(1,chars-1))+'…':r.k;
+    s+='<rect class="hit" data-i="'+i+'" tabindex="0" role="img" aria-label="'+esc(r.k+': '+money(r.v)+', '+Math.round(r.v/total*100)+'% del gasto')+'" x="0" y="'+y+'" width="'+W+'" height="'+rowH+'"/>';
+    s+='<text style="pointer-events:none" x="0" y="'+(y+rowH/2+4)+'">'+esc(name)+'</text>';
+    s+='<path class="b-exp" style="pointer-events:none" d="M'+lw+','+by+'H'+(lw+len-rad)+'Q'+(lw+len)+','+by+' '+(lw+len)+','+(by+rad)+'V'+(by+bh-rad)+'Q'+(lw+len)+','+(by+bh)+' '+(lw+len-rad)+','+(by+bh)+'H'+lw+'Z"/>';
+    s+='<text class="val" style="pointer-events:none" x="'+(lw+len+8)+'" y="'+(y+rowH/2+4)+'">'+money(r.v)+'</text>';
+  });
+  box.innerHTML='<svg class="ax" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="Gastos por categoría">'+s+'</svg><div class="tip" hidden></div>';
+  var svg=box.querySelector('svg');
+  function show(i){
+    var r=rows[i];
+    tip(box,W/2,r.k,[
+      {color:'var(--exp)',label:'Gasto',value:money(r.v)},
+      {color:'var(--ink)',label:'Del total',value:Math.round(r.v/total*100)+'%'}
+    ]);
+    var t=box.querySelector('.tip');t.style.top=Math.max(0,2+i*rowH-(t.offsetHeight+4))+'px';
+  }
+  svg.addEventListener('pointerover',function(e){var h=e.target.closest('.hit');if(h)show(+h.dataset.i);});
+  svg.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')hideTip(box);});
+  svg.addEventListener('focusin',function(e){var h=e.target.closest('.hit');if(h)show(+h.dataset.i);});
+  svg.addEventListener('focusout',function(){hideTip(box);});
+}
+
+function renderFinStats(F){
+  var ing=sumBy(F.inc,function(i){return i.amount;}),gas=sumBy(F.exp,function(p){return p.price;}),util=ing-gas;
+  var units=sumBy(F.inc,function(i){return i.units;});
+  var withU=F.inc.filter(function(i){return num(i.units)>0;});
+  var amtU=sumBy(withU,function(i){return i.amount;}),unitsU=sumBy(withU,function(i){return i.units;});
+  var pend=0;
+  state.purchases.forEach(function(p){if(p.status==='pendiente')pend+=num(p.price);});
+  $('#fstats').innerHTML=
+    '<div class="stat"><span>Ingresos</span><strong class="money">'+money(ing)+'</strong><small>'+F.inc.length+(F.inc.length===1?' venta anotada':' ventas anotadas')+'</small></div>'+
+    '<div class="stat"><span>Gastos</span><strong class="money">'+money(gas)+'</strong><small>Por comprar aún: '+money(pend)+'</small></div>'+
+    '<div class="stat hot"><span>Utilidad</span><strong class="money">'+money(util)+'</strong><small>'+(ing>0?'Margen de '+pct(util/ing)+' sobre lo vendido':'Sin ingresos en este periodo')+'</small></div>'+
+    '<div class="stat"><span>Donuts vendidos</span><strong class="money">'+NUM.format(units)+'</strong><small>'+(unitsU>0?'Promedio '+money(amtU/unitsU)+' por donut':'Anota cuántos vendes')+'</small></div>';
+}
+function renderFinTable(F){
+  var rows=F.buckets.map(function(b){
+    return '<tr><td>'+esc(bFull(b,F.mode))+'</td><td class="money">'+money(b.inc)+'</td><td class="money">'+money(b.exp)+'</td><td class="money">'+money(b.net)+'</td><td class="money">'+money(b.cum)+'</td></tr>';
+  }).join('');
+  var cats=catTotals(F).map(function(r){return '<tr><td>'+esc(r.k)+'</td><td class="money">'+money(r.v)+'</td></tr>';}).join('');
+  $('#ftablebody').innerHTML=
+    '<h3>Ingresos, gastos y utilidad</h3><div class="scroll"><table><thead><tr><th>Periodo</th><th>Ingresos</th><th>Gastos</th><th>Utilidad</th><th>Acumulada</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<h3>Gastos por categoría</h3><div class="scroll"><table><thead><tr><th>Categoría</th><th>Gasto</th></tr></thead><tbody>'+(cats||'<tr><td colspan="2">Sin gastos en este periodo</td></tr>')+'</tbody></table></div>';
+}
+function renderIncomeList(){
+  var box=$('#ilist');
+  var rows=state.income.slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))||((b.createdAt||0)-(a.createdAt||0));});
+  if(state.mode==='loading'){box.innerHTML='<div class="empty">Cargando tus ingresos…</div>';return;}
+  if(!rows.length){box.innerHTML='<div class="empty"><b>Aún no anotas ingresos</b>Cada vez que vendas, anota la fecha, cuántos donuts y el valor total.</div>';return;}
+  box.innerHTML=rows.map(function(i){
+    var meta=[fmtDate(i.date),num(i.units)>0?NUM.format(num(i.units))+(num(i.units)===1?' donut':' donuts'):'',i.method].filter(Boolean).join(' · ');
+    var avg=num(i.units)>0?money(num(i.amount)/num(i.units))+' por donut':'';
+    return '<div class="item inc" data-id="'+esc(i.id)+'">'+
+      '<div class="main"><b>'+esc(i.concept||'Venta de donuts')+(i.example?'<span class="tag">ejemplo</span>':'')+'</b><span class="meta">'+esc(meta)+'</span>'+(i.notes?'<span class="meta"><br>'+esc(i.notes)+'</span>':'')+'</div>'+
+      '<div class="price money"><b>'+money(num(i.amount))+'</b><small>'+avg+'</small></div>'+
+      '<div class="act"><button class="link" type="button" data-act="edit">Editar</button><button class="link danger" type="button" data-act="del">'+(state.iConfirmDel===i.id?'¿Borrar?':'Borrar')+'</button></div>'+
+    '</div>';
+  }).join('');
+}
+function renderFinance(){
+  if(state.view!=='finanzas')return;
+  var F=finData(),modeTxt={dia:'por día',semana:'por semana',mes:'por mes'}[F.mode];
+  $('#c1sub').textContent=dlabel(F.r.a,{day:'numeric',month:'short'})+' – '+dlabel(F.r.b,{day:'numeric',month:'short'})+' · '+modeTxt+' · en pesos (COP)';
+  renderFinStats(F);
+  drawBars($('#c1'),F);drawLine($('#c2'),F);drawCats($('#c3'),F);
+  renderFinTable(F);renderIncomeList();
+}
+
+async function writeIncome(id,data){
+  if(state.mode==='db'){
+    var ref=id?state.db.collection('income').doc(id):state.db.collection('income').doc();
+    await ref.set(data);
+  }else{
+    if(id){state.income=state.income.map(function(x){return x.id===id?Object.assign({id:id},data):x;});}
+    else{state.income.push(Object.assign({id:uid()},data));}
+    ls.set('pd.income',state.income);renderFinance();
+  }
+}
+async function removeIncome(id){
+  if(state.mode==='db'){await state.db.collection('income').doc(id).delete();}
+  else{state.income=state.income.filter(function(x){return x.id!==id;});ls.set('pd.income',state.income);renderFinance();}
+}
+function resetIncomeForm(){
+  state.iEditing=null;
+  $('#iform').reset();
+  $('#i-date').value=todayStr();$('#i-method').value='Efectivo';$('#i-concept').value='Venta de donuts';
+  $('#iform-title').textContent='Anotar ingreso';$('#i-save').textContent='Guardar ingreso';$('#i-cancel').hidden=true;
+  $('#ipreview').textContent='';
+}
+function previewIncome(){
+  var u=num($('#i-units').value),a=num($('#i-amount').value);
+  $('#ipreview').textContent=u>0&&a>0?'Vendiste a '+money(a/u)+' por donut en promedio.':'';
+}
+function startIncomeEdit(id){
+  var i=state.income.find(function(x){return x.id===id;});if(!i)return;
+  state.iEditing=id;
+  $('#i-date').value=i.date||todayStr();$('#i-method').value=i.method||'Efectivo';$('#i-concept').value=i.concept||'';
+  $('#i-units').value=num(i.units)||'';$('#i-amount').value=i.amount;$('#i-notes').value=i.notes||'';
+  $('#iform-title').textContent='Editar ingreso';$('#i-save').textContent='Guardar cambios';$('#i-cancel').hidden=false;
+  previewIncome();
+  $('#iform').scrollIntoView({behavior:'smooth',block:'start'});
+  $('#i-amount').focus({preventScroll:true});
+}
+
 /* ---------- eventos ---------- */
 function bind(){
   window.addEventListener('hashchange',route);
@@ -734,11 +1169,59 @@ function bind(){
     touched();renderLines();recalc();
     var ins=document.querySelectorAll('#lines .line [data-f="name"]');if(ins.length)ins[ins.length-1].focus();
   });
+
+  /* finanzas */
+  $('#fchips').addEventListener('click',function(e){
+    var b=e.target.closest('[data-p]');if(!b)return;
+    state.fperiod=b.dataset.p;
+    document.querySelectorAll('#fchips .chip').forEach(function(c){c.setAttribute('aria-pressed',String(c===b));});
+    renderFinance();
+  });
+  $('#goincome').addEventListener('click',function(){
+    $('#iform').scrollIntoView({behavior:'smooth',block:'start'});
+    $('#i-amount').focus({preventScroll:true});
+  });
+  ['#i-units','#i-amount'].forEach(function(s){$(s).addEventListener('input',previewIncome);});
+  $('#iform').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var data={
+      date:$('#i-date').value||todayStr(),method:$('#i-method').value,concept:$('#i-concept').value.trim()||'Venta de donuts',
+      units:Math.max(0,Math.floor(num($('#i-units').value))),amount:num($('#i-amount').value),notes:$('#i-notes').value.trim()
+    };
+    if(data.amount<=0){toast('Escribe el valor total del ingreso');return;}
+    var old=state.iEditing?state.income.find(function(x){return x.id===state.iEditing;}):null;
+    data.createdAt=old&&old.createdAt?old.createdAt:Date.now();
+    try{await writeIncome(state.iEditing,data);toast(state.iEditing?'Cambios guardados':'Ingreso guardado');resetIncomeForm();}
+    catch(err){toast('No se pudo guardar el ingreso');}
+  });
+  $('#i-cancel').addEventListener('click',resetIncomeForm);
+  $('#ilist').addEventListener('click',async function(e){
+    var b=e.target.closest('[data-act]');if(!b)return;
+    var id=b.closest('.item').dataset.id,act=b.dataset.act;
+    try{
+      if(act==='edit')startIncomeEdit(id);
+      else if(act==='del'){
+        if(state.iConfirmDel===id){state.iConfirmDel=null;await removeIncome(id);toast('Ingreso borrado');}
+        else{state.iConfirmDel=id;renderIncomeList();clearTimeout(bind._ti);bind._ti=setTimeout(function(){state.iConfirmDel=null;renderIncomeList();},4000);}
+      }
+    }catch(err){toast('No se pudo completar la acción');}
+  });
+  document.addEventListener('pointerdown',function(e){
+    if(e.target.closest&&e.target.closest('.chart-box'))return;
+    document.querySelectorAll('.chart-box .tip').forEach(function(t){t.hidden=true;});
+  });
+  var lastW=0;
+  function onResize(){
+    var w=$('#c1').clientWidth;
+    if(w&&w!==lastW){lastW=w;renderFinance();}
+  }
+  if(window.ResizeObserver)new ResizeObserver(onResize).observe($('#c1'));
+  else window.addEventListener('resize',onResize);
 }
 
 /* ---------- arranque ---------- */
 async function boot(){
-  fillUnitSelects();resetForm();bind();route();
+  fillUnitSelects();resetForm();resetIncomeForm();bind();route();
   renderPurchases();renderPricingForm();
   var db=null;
   try{db=window.claude&&window.claude.use?await window.claude.use('db'):null;}catch(e){db=null;}
@@ -750,6 +1233,10 @@ async function boot(){
       if(!snap.metadata.fromCache){clearTimeout(connTimer);if(state.conn==='slow'){state.conn='';renderConn();}}
       renderPurchases();refreshLinesIfIdle();recalc();
     },function(){state.conn='error';renderConn();});
+    db.collection('income').onSnapshot(function(snap){
+      state.income=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+      renderFinance();
+    },function(){state.conn='error';renderConn();});
     db.doc('settings/pricing').onSnapshot(function(snap){
       if(!snap.exists||snap.metadata.hasPendingWrites||dirty||saving)return;
       var d=JSON.parse(JSON.stringify(snap.data()));
@@ -759,8 +1246,9 @@ async function boot(){
   }else{
     state.mode='local';
     var lp=ls.get('pd.purchases');state.purchases=Array.isArray(lp)?lp:[];
+    var li=ls.get('pd.income');state.income=Array.isArray(li)?li:[];
     var pr=ls.get('pd.pricing');if(pr&&typeof pr==='object')state.pricing=normalizePricing(pr);
-    renderConn();renderPurchases();renderPricingForm();
+    renderConn();renderPurchases();renderPricingForm();renderFinance();
   }
 }
 boot();
